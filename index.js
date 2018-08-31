@@ -120,7 +120,7 @@ function _track_key (key) {
   return target => {
     console.assert(
       has(key)(target),
-      `TracksPropagation: key (${key}) does not exist in target!`
+      `TracksPropagation: key (${key}) does not exist in target!`,
     )
     const propagate = Propagators.propagate_up({ key, target })
     const override_propagate = Propagates.override(propagate)
@@ -142,7 +142,7 @@ function override_internal (symbol) {
   return replacement => target => {
     console.assert(
       has(symbol)(target),
-      `override_internal: ${symbol.toString()} does not exist!`
+      `override_internal: ${symbol.toString()} does not exist!`,
     )
     const override_property = d.configurable({ v: replacement })
     const do_override = define_property.mut(symbol)(override_property)
