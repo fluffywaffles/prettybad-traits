@@ -1,0 +1,28 @@
+{
+  "name": "@prettybad/traits",
+  "version": "0.0.1",
+  "description": "They're some pretty bad object-y make-y implement-y things",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx rollup -c .rollup.test.js -- test.js && node .test.js && rm .test.js",
+    "build": "npx rollup -c .rollup.test.js -- index.js && mv .test.js out.js && node -i -e \"const traits = require('./out')\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fluffywaffles/prettybad-traits.git"
+  },
+  "author": "@fluffywaffles",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fluffywaffles/prettybad-traits/issues"
+  },
+  "homepage": "https://github.com/fluffywaffles/prettybad-traits#readme",
+  "devDependencies": {
+    "@sisyphus/sisyphus": "0.0.6",
+    "rollup": "^0.65.0",
+    "rollup-plugin-node-resolve": "^3.3.0"
+  },
+  "dependencies": {
+    "@prettybad/util": "0.0.27"
+  }
+}
