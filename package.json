@@ -1,7 +1,7 @@
 {
   "name": "@prettybad/traits",
-  "version": "0.0.1",
-  "description": "They're some pretty bad object-y make-y implement-y things",
+  "version": "0.0.2",
+  "description": "We all have some pretty bad traits",
   "main": "index.js",
   "scripts": {
     "test": "npx rollup -c .rollup.test.js -- test.js && node .test.js && rm .test.js",
