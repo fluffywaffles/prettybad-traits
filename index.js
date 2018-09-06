@@ -3,7 +3,9 @@ import {
   ᐅᶠ,
   ᐅwhen,
   id,
+  and,
   has,
+  not,
   bind,
   flip,
   fold,
@@ -30,7 +32,11 @@ export function Commutes (target) {
     has(`state`)(target),
     'The `target` object of `Commutes` must have a state key!',
   )
-  return ᐅwhen(has(`state`))(ᐅᶠ([
+  console.assert(
+    !has(Commutes.symbol)(target),
+    'Commutes: `target` is already `Commutes`!',
+  )
+  return ᐅwhen(and([ has(`state`), not(has(Commutes.symbol)) ]))(ᐅᶠ([
     define_property.mut(Commutes.symbol)(Commutes.property),
     define_property.mut(`commute`)(d.nothing({ v: Commutes.proxy_fn })),
   ]))(target)
