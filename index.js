@@ -223,7 +223,81 @@ export function test (suite) {
     })
   }
 
+  const is_function = reflex.type(types.function)
+  const silence_asserts = thunk => {
+    const _assert = console.assert
+    console.assert = _ => { return }
+    const result = thunk()
+    console.assert = _assert
+    return result
+  }
+
   return suite(`we all have pretty bad traits...`, [
+    t => t.suite(`Commutes`, {
+      'encapsulates `state` changes with `commute` function': t => {
+        const v5 = { v: 5 }
+        const state_object = { state: v5 }
+        const v5_bad_commutes = silence_asserts(_ => Commutes(v5))
+        return t.eq(v5_bad_commutes)(v5)
+            && t.ok(has(`commute`)(Commutes({ state: v5 })))
+            && t.ok(has(`state`)(Commutes({ state: v5 })))
+            && t.ok(is_function(get(`commute`)(Commutes({ state: v5 }))))
+            && t.eq(Commutes({ state: v5 }).commute(_ => 0).state)(0)
+      },
+    }),
+    t => {
+      const commuting = Commutes({ state: [] })
+      const propagating = Propagates(Commutes({ state: [] }))
+      const base = { state: [] }
+      const bad_propagates = silence_asserts(_ => Propagates(base))
+
+      return t.suite(`Propagates`, {
+        'creates a `propagate` method on a "Commutes" object': t => {
+          return t.eq(bad_propagates)(base)
+              && t.ok(has(Propagates.symbol)(propagating))
+              && t.ok(is_function(get(`propagate`)(propagating)))
+              && t.eq(propagating[Propagates.symbol])(id)
+        },
+        'wraps `commute` so that it also calls `propagate`': t => {
+          const smoke = { message: 'propagate called' }
+          const emit_smoke = result => [ smoke, result.state ]
+          const Smokes = Propagates.override(emit_smoke)
+          const smoke_test = Smokes(propagating)
+          return t.eq(smoke_test.commute(push(0)))([ smoke, [0] ])
+        },
+      })
+    },
+    t => t.suite(`TracksPropagation`, {
+      'overrides a subobject propagate method': t => {
+        const propagate = Propagates.symbol
+        const propagating = Propagates(Commutes({ state: 5 }))
+        const tracked = TracksPropagation([`count`])({
+          count: Propagates(Commutes({ state: 5 })),
+        })
+        const incremented = tracked.count.commute(v => v + 1)
+        const has_count_state = ᐅᶠ([ get(`count`), has(`state`) ])
+        return t.eq(propagating.state)(tracked.count.state)
+            && !t.eq(tracked.count[propagate])(propagating[propagate])
+            && t.ok(has_count_state(incremented))
+            && t.eq(tracked.count.commute(v => v + 1).count.state)(6)
+      },
+      'every tracked value is kept in an array': t => {
+        const tree = Tree()
+        const tracked = tree[TracksPropagation.tracking_symbol]
+        return t.eq(map(get(`key`))(tracked))([
+          'leaf',
+          'leaf2',
+        ])
+      },
+      'getters and private symbols are equal': t => {
+        const tree = Tree()
+        const tracked = tree[TracksPropagation.tracking_symbol]
+        return t.eq(map(get_in(tree))(map(get(`symbol`))(tracked)))([
+          tree.leaf,
+          tree.leaf2,
+        ])
+      },
+    }),
     t => t.suite(`Tree example`, {
       'trees have green leaves': t => {
         const tree = Tree()
