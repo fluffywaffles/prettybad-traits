@@ -18,11 +18,11 @@
   },
   "homepage": "https://github.com/fluffywaffles/prettybad-traits#readme",
   "devDependencies": {
-    "@sisyphus/sisyphus": "0.0.6",
+    "@sisyphus/sisyphus": "0.0.7",
     "rollup": "^0.65.0",
     "rollup-plugin-node-resolve": "^3.3.0"
   },
   "dependencies": {
-    "@prettybad/util": "0.0.27"
+    "@prettybad/util": "0.0.29"
   }
 }
