@@ -4,8 +4,8 @@
   "description": "We all have some pretty bad traits",
   "main": "index.js",
   "scripts": {
-    "test": "npx rollup -c .rollup.test.js -- test.js && node .test.js && rm .test.js",
-    "build": "npx rollup -c .rollup.test.js -- index.js && mv .test.js out.js && node -i -e \"const traits = require('./out')\""
+    "test": "npx rollup -c .rollup.test.js -- test.mjs && node .test.js && rm .test.js",
+    "build": "npx rollup -c .rollup.test.js -- index.mjs && mv .test.js out.js && node -i -e \"const traits = require('./out')\""
   },
   "repository": {
     "type": "git",
