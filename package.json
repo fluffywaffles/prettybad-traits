@@ -1,6 +1,6 @@
 {
   "name": "@prettybad/traits",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "We all have some pretty bad traits",
   "main": "index.js",
   "scripts": {
