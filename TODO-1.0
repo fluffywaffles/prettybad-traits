@@ -1,4 +1,5 @@
 - Clean up documentation
 - Update to @prettybad/util 1.0.0
+- No custom keys, only helper functions
 - More thorough tests
   - Test trait helpers independently
