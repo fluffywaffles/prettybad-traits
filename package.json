@@ -24,6 +24,6 @@
     "source-map-support": "^0.5.16"
   },
   "dependencies": {
-    "@prettybad/util": "0.0.29"
+    "@prettybad/util": "^0.3.0"
   }
 }

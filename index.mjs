@@ -1,20 +1,19 @@
 import {
   d,
-  ᐅᶠ,
+  ƒ,
+  ᐅ,
   ᐅwhen,
-  id,
   and,
   get,
   has,
   not,
+  set,
   bind,
-  flip,
   fold,
+  over,
   push,
   update,
   method_of,
-  define_property,
-  define_properties,
 } from '@prettybad/util'
 
 /**
@@ -38,20 +37,20 @@ export function Commutes (target) {
     !has(Commutes.symbol)(target),
     'Commutes: `target` is already `Commutes`!',
   )
-  return ᐅwhen(and([ has(`state`), not(has(Commutes.symbol)) ]))(ᐅᶠ([
-    define_property.mut(Commutes.symbol)(Commutes.property),
-    define_property.mut(`commute`)(d.nothing({ v: Commutes.proxy_fn })),
+  return ᐅwhen(and([ has(`state`), not(has(Commutes.symbol)) ]))(ᐅ([
+    set.descriptor.mut(Commutes.symbol)(Commutes.descriptor),
+    set.descriptor.mut(`commute`)(d.nothing({ v: Commutes.proxy_fn })),
   ]))(target)
 }
 
-define_properties.mut({
-  symbol   : d.nothing ({ v: Symbol(`commute`) }),
-  property : d.nothing ({ v: d.configurable({ v: _commute  }) }),
-  proxy_fn : d.nothing ({ v: _proxy_commute }),
-  override : d.nothing ({ v: _override_commute }),
+set.descriptors.mut({
+  symbol     : d.nothing({ v: Symbol(`commute`)                }),
+  descriptor : d.nothing({ v: d.configurable({ v: _commute  }) }),
+  proxy_fn   : d.nothing({ v: _proxy_commute                   }),
+  override   : d.nothing({ v: _override_commute                }),
 })(Commutes)
 function _commute (updater) {
-  return update(`state`)(updater)(this)
+  return ƒ.unwrap(update(`state`)(updater)(this))
 }
 function _proxy_commute (updater) {
   return this[Commutes.symbol](updater)
@@ -81,21 +80,21 @@ export function Propagates (target) {
     has(Commutes.symbol)(target),
     'The `target` object of `Propagates` must also be `Commutes`!',
   )
-  return ᐅwhen(has(Commutes.symbol))(ᐅᶠ([
-    define_property.mut(Propagates.symbol)(d.configurable({ v: id })),
+  return ᐅwhen(has(Commutes.symbol))(ᐅ([
+    set.descriptor.mut(Propagates.symbol)(d.configurable({ v: x => x })),
     Propagates.wrap_commute,
   ]))(target)
 }
 
-define_properties.mut({
-  symbol          : d.nothing ({ v: Symbol(`propagate`) }),
-  override        : d.nothing ({ v: _override_propagate }),
-  wrap_commute    : d.nothing ({ v: _wrap_commute }),
-  commute_wrapper : d.nothing ({ v: _commute_wrapper }),
+set.descriptors.mut({
+  symbol          : d.nothing({ v: Symbol(`propagate`) }) ,
+  override        : d.nothing({ v: _override_propagate }) ,
+  wrap_commute    : d.nothing({ v: _wrap_commute       }) ,
+  commute_wrapper : d.nothing({ v: _commute_wrapper    }) ,
 })(Propagates)
 function _commute_wrapper (commute) {
   return function propagating_commute (updater) {
-    return ᐅᶠ([
+    return ᐅ([
       bind(this)(commute),
       method_of(this)(Propagates.symbol),
     ])(updater)
@@ -118,13 +117,13 @@ function _override_propagate (override) {
  */
 export function TracksPropagation (keys) {
   const tracking_symbol = TracksPropagation.tracking_symbol
-  return ᐅᶠ([
-    define_property.mut(tracking_symbol)(d.configurable ({ v: [] })),
-    flip(fold(TracksPropagation.track_key))(keys),
+  return ᐅ([
+    set.descriptor.mut(tracking_symbol)(d.writable({ v: [] })),
+    over(TracksPropagation.track_key)(keys),
   ])
 }
 
-define_properties.mut({
+set.descriptors.mut({
   tracking_symbol : d.nothing ({ v: Symbol(`tracking`) }),
   add_to_tracking : d.nothing ({ v: _add_to_tracking }),
   track_key       : d.nothing ({ v: _track_key }),
@@ -132,7 +131,7 @@ define_properties.mut({
 function _add_to_tracking ({ key, symbol }) {
   return target => {
     const tracked_symbol = TracksPropagation.tracking_symbol
-    return update(tracked_symbol)(push({ key, symbol }))(target)
+    return ƒ.unwrap(update(tracked_symbol)(push({ key, symbol }))(target))
   }
 }
 
@@ -152,11 +151,11 @@ function _track_key (key) {
     const tracked_child = get(key)(target)
     const symbol = Symbol(`tracked_child[${key}]`)
     const proxy = create_propagate_proxy(Propagators.propagate_up)(symbol)
-    return ᐅwhen(has(key))(ᐅᶠ([
+    return ᐅwhen(has(key))(ᐅ([
       TracksPropagation.add_to_tracking({ key, symbol }),
-      define_properties.mut({
-        [symbol] : d.non_writable ({ v: tracked_child }),
-        [key]    : d.enumerable   ({ g: proxy }),
+      set.descriptors.mut({
+        [ key    ]: d.enumerable({ g: proxy }),
+        [ symbol ]: d.non_configurable({ v: tracked_child }),
       }),
     ]))(target)
   }
@@ -176,7 +175,7 @@ const Propagators = {
 }
 function create_propagate_up ({ symbol, context }) {
   return function propagate_up (result) {
-    return update(symbol)(_ => result)(context)
+    return ƒ.unwrap(update(symbol)(_ => result)(context))
   }
 }
 
@@ -187,8 +186,8 @@ function override_internal (symbol) {
       has(symbol)(target),
       `override_internal: ${symbol.toString()} does not exist!`,
     )
-    const override_property = d.configurable({ v: replacement })
-    const do_override = define_property.mut(symbol)(override_property)
+    const override_descriptor = d.configurable({ v: replacement })
+    const do_override = set.descriptor.mut(symbol)(override_descriptor)
     return ᐅwhen(has(symbol))(do_override)(target)
   }
 }
@@ -196,7 +195,6 @@ function override_internal (symbol) {
 import {
   map,
   types,
-  get_in,
   reflex,
   update_path,
 } from '@prettybad/util'
@@ -216,9 +214,9 @@ export function test (suite) {
       state : { color },
       // methods
       turn () {
-        return this.commute(update(`color`)(current => {
+        return this.commute(ƒ.fatalize(update(`color`)(current => {
           return current === 'green' ? 'brown' : 'green'
-        }))
+        })))
       },
     })
   }
@@ -256,7 +254,7 @@ export function test (suite) {
           return t.eq(bad_propagates)(base)
               && t.ok(has(Propagates.symbol)(propagating))
               && t.ok(is_function(get(`propagate`)(propagating)))
-              && t.eq(propagating[Propagates.symbol])(id)
+              && t.eq(propagating[Propagates.symbol](5))(5)
         },
         'wraps `commute` so that it also calls `propagate`': t => {
           const smoke = { message: 'propagate called' }
@@ -275,7 +273,7 @@ export function test (suite) {
           count: Propagates(Commutes({ state: 5 })),
         })
         const incremented = tracked.count.commute(v => v + 1)
-        const has_count_state = ᐅᶠ([ get(`count`), has(`state`) ])
+        const has_count_state = ᐅ([ get(`count`), has(`state`) ])
         return t.eq(propagating.state)(tracked.count.state)
             && !t.eq(tracked.count[propagate])(propagating[propagate])
             && t.ok(has_count_state(incremented))
@@ -292,7 +290,7 @@ export function test (suite) {
       'getters and private symbols are equal': t => {
         const tree = Tree()
         const tracked = tree[TracksPropagation.tracking_symbol]
-        return t.eq(map(get_in(tree))(map(get(`symbol`))(tracked)))([
+        return t.eq(map(get.in(tree))(map(get(`symbol`))(tracked)))([
           tree.leaf,
           tree.leaf2,
         ])
