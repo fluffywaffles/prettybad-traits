@@ -19,8 +19,8 @@
   "homepage": "https://github.com/fluffywaffles/prettybad-traits#readme",
   "devDependencies": {
     "@sisyphus/sisyphus": "0.0.7",
-    "rollup": "^0.65.0",
-    "rollup-plugin-node-resolve": "^3.3.0"
+    "rollup": "^1.31.1",
+    "rollup-plugin-node-resolve": "^5.2.0"
   },
   "dependencies": {
     "@prettybad/util": "0.0.29"
